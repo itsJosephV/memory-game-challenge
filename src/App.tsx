@@ -1,11 +1,5 @@
 import {MemoryGame} from "./components/MemoryGame";
-
-export interface BoardProps {
-  id: number;
-  flipped: boolean;
-  value: string;
-  matched: boolean;
-}
+import {BoardProps} from "./types";
 
 function App() {
   const board: BoardProps[][] = [

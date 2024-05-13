@@ -1,13 +1,12 @@
 import {useState} from "react";
 
-import {BoardProps} from "../App";
+import {type BoardProps} from "../types";
 import {RestartIcon} from "../icons/Restart";
 import {LifeIcon} from "../icons/Life";
 import {PlaceholderIcon} from "../icons/Placeholder";
-
-import {randomlySortBoard} from "./utils/randomSorting";
-import {cn} from "./utils/cn";
-import {calculateMatches} from "./utils/calculateMatches";
+import {cn} from "../utils/cn";
+import {randomlySortBoard} from "../utils/randomSorting";
+import {calculateMatches} from "../utils/calculateMatches";
 
 export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   const [boardItems, setBoardItems] = useState<BoardProps[][]>(randomlySortBoard(board));
