@@ -3,9 +3,8 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  color: CanvasText;
-  background-color: Canvas;
+  color: #fafaf9;
+  background-color: #1c1917;
 }
 
 

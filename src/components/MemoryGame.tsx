@@ -10,9 +10,9 @@ import {cn} from "./utils/cn";
 import {calculateMatches} from "./utils/calculateMatches";
 
 export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
-  const [boardItems, setBoardItems] = useState(randomlySortBoard(board));
+  const [boardItems, setBoardItems] = useState<BoardProps[][]>(randomlySortBoard(board));
   const [matches, setMatches] = useState<BoardProps[]>([]);
-  const [gameCompleted, setGameCompleted] = useState(false);
+  const [gameCompleted, setGameCompleted] = useState<boolean>(false);
   const [attemps, setAttemps] = useState<number>(15);
   const [matchesLeft, setMatchesLeft] = useState<number>(calculateMatches(board));
 
@@ -90,6 +90,9 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   };
 
   const resetGame = () => {
+    if (attemps > 0) {
+      confirm("The board will be re-sorted, are you sure?");
+    }
     setBoardItems(randomlySortBoard(board));
     setMatchesLeft(calculateMatches(board));
     setAttemps(15);
@@ -97,13 +100,11 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-end">
-        <div className="inline-flex w-16 items-center justify-center gap-1 rounded-md bg-stone-700 py-1 text-red-300">
-          <span>
-            <LifeIcon />
-          </span>
-          &times;{attemps}
-        </div>
+      <div className="ml-auto inline-flex w-16 items-center justify-center gap-1 rounded-md bg-stone-700 py-1 text-red-300">
+        <span>
+          <LifeIcon />
+        </span>
+        &times;{attemps}
       </div>
 
       <div className="grid grid-cols-5 gap-1">
@@ -138,8 +139,8 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
         </div>
         <button className="items-center rounded-md bg-stone-700 p-2" onClick={resetGame}>
           <RestartIcon
-            className={cn("h-6 w-6 text-stone-300", {
-              "text-green-300": attemps === 0,
+            className={cn("h-6 w-6 text-stone-300 duration-200 hover:text-stone-400", {
+              "text-green-300 hover:text-green-400": attemps === 0,
             })}
           />
         </button>
