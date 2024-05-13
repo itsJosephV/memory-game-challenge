@@ -1,4 +1,4 @@
-import {BoardProps} from "../../App";
+import {BoardProps} from "../types";
 
 export const randomlySortBoard = (board: BoardProps[][]): BoardProps[][] => {
   const flatBoard = board.flat();
