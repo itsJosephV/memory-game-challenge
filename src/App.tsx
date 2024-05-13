@@ -25,14 +25,14 @@ function App() {
     ],
     [
       {id: 11, flipped: false, value: "🎉", matched: false},
-      {id: 12, flipped: false, value: "🥳", matched: false},
+      {id: 12, flipped: false, value: "🥹", matched: false},
       {id: 13, flipped: false, value: "🎁", matched: false},
       {id: 14, flipped: false, value: "🎂", matched: false},
       {id: 15, flipped: false, value: "🍰", matched: false},
     ],
     [
       {id: 16, flipped: false, value: "🎉", matched: false},
-      {id: 17, flipped: false, value: "🥳", matched: false},
+      {id: 17, flipped: false, value: "🥹", matched: false},
       {id: 18, flipped: false, value: "🎁", matched: false},
       {id: 19, flipped: false, value: "🎂", matched: false},
       {id: 20, flipped: false, value: "🍰", matched: false},
