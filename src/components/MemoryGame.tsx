@@ -14,6 +14,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
   const [attemps, setAttemps] = useState<number>(15);
   const [matchesLeft, setMatchesLeft] = useState<number>(calculateMatches(board));
+  const [isLifeLost, setIsLifeLost] = useState<boolean>(false);
 
   const flipCard = (id: number) => {
     if (attemps === 0) return;
@@ -69,6 +70,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
         setBoardItems(updatedBoard);
       } else {
         setAttemps((prev) => prev - 1);
+        setIsLifeLost(true);
         setTimeout(() => {
           const updatedBoard = boardItems.map((row) =>
             row.map((card) => {
@@ -80,6 +82,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
             }),
           );
 
+          setIsLifeLost(false);
           setBoardItems(updatedBoard);
           setMatches([]);
           console.log("match not found");
@@ -94,12 +97,20 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     }
     setBoardItems(randomlySortBoard(board));
     setMatchesLeft(calculateMatches(board));
+    setMatches([]);
     setAttemps(15);
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="ml-auto inline-flex w-16 items-center justify-center gap-1 rounded-md bg-stone-700 py-1 text-red-300">
+      <div
+        className={cn(
+          "ml-auto inline-flex w-16 items-center justify-center gap-1 rounded-md bg-stone-700 py-1 font-mono text-red-300",
+          {
+            shake: isLifeLost,
+          },
+        )}
+      >
         <span>
           <LifeIcon />
         </span>
@@ -113,7 +124,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
               <button
                 key={item.id}
                 className={cn(
-                  "flex h-20 w-20 items-center justify-center rounded-md border border-stone-100/10 text-3xl",
+                  "group flex h-16 w-16 items-center justify-center rounded-md border border-stone-100/10 text-2xl duration-200 hover:border-stone-100/30 md:h-20 md:w-20 md:text-3xl",
                   {
                     "bg-emerald-400": item.matched,
                     "pointer-events-none border-red-300": attemps === 0,
@@ -121,19 +132,29 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
                 )}
                 onClick={() => flipCard(item.id)}
               >
-                {item.flipped ? item.value : <PlaceholderIcon className="text-stone-700" />}
+                {item.flipped ? (
+                  item.value
+                ) : (
+                  <PlaceholderIcon
+                    className={cn("text-stone-100/20 duration-200 group-hover:text-stone-100/30", {
+                      "text-red-300": attemps === 0,
+                    })}
+                  />
+                )}
               </button>
             );
           });
         })}
       </div>
       <div className="flex gap-2">
-        <div className="flex-1 items-center rounded-md bg-stone-700 p-2 px-4 font-mono text-stone-300">
-          <div className="flex justify-between">
-            <p className="">Matches left: {matchesLeft}</p>
+        <div className="flex flex-1 items-center justify-between rounded-md bg-stone-700 p-2 px-4 font-mono text-stone-300">
+          <div>
+            <p className="text-sm">Matches left: {matchesLeft}</p>
+          </div>
 
-            {gameCompleted && <p className="text-green-300">Game Completed</p>}
-            {attemps === 0 && <p className="text-red-300">Game Over</p>}
+          <div>
+            {gameCompleted && <p className="text-sm text-green-300 md:text-base">Game Completed</p>}
+            {attemps === 0 && <p className="text-sm text-red-300 md:text-base">Game Over</p>}
           </div>
         </div>
         <button className="items-center rounded-md bg-stone-700 p-2" onClick={resetGame}>

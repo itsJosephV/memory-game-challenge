@@ -35,11 +35,11 @@ function App() {
 
   return (
     <main className="container m-auto grid min-h-screen grid-rows-[auto,1fr,auto] px-4">
-      <header className="text-xl font-bold leading-[4rem]">memory-game-challenge</header>
+      <header className="font-mono text-xl font-bold leading-[4rem]">memory-game-challenge</header>
       <section className="flex items-center justify-center py-8">
         <MemoryGame board={board} />
       </section>
-      <footer className="text-center leading-[4rem] opacity-70">
+      <footer className="text-center font-mono leading-[4rem] opacity-70">
         © {new Date().getFullYear()} memory-game-challenge
       </footer>
     </main>
