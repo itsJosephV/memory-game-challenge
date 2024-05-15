@@ -105,7 +105,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     }
   }
 
-  const resetGame = () => {
+  function resetGame() {
     if (attempts > 0 && !gameCompleted) {
       confirm("The board will be re-sorted, are you sure?");
     }
@@ -114,7 +114,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     setMatchesLeft(calculateMatches(board));
     setMatches([]);
     setAttempts(15);
-  };
+  }
 
   return (
     <div className="flex flex-col gap-2">
