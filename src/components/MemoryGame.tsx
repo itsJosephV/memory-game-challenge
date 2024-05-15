@@ -34,7 +34,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
       }),
     );
 
-    // Update the item in boardItems with its flipped property set to true
+    // Update the item in boardItems when its flipped property set to true
     setBoardItems(updatedBoard);
 
     // we check if the two items inside "matches" is a match or not
