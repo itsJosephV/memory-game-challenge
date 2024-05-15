@@ -9,9 +9,8 @@ import {randomlySortBoard} from "../utils/randomSorting";
 import {calculateMatches} from "../utils/calculateMatches";
 
 export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
-  const [boardItems, setBoardItems] = useState<BoardProps[][]>(randomlySortBoard(board));
-  //matches state logic to compare the two items selected
-  const [matches, setMatches] = useState<BoardProps[]>([]);
+  const [boardCards, setBoardCards] = useState<BoardProps[][]>(randomlySortBoard(board));
+  const [cardsToCompare, setCardsToCompare] = useState<BoardProps[]>([]);
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<number>(15);
   const [matchesLeft, setMatchesLeft] = useState<number>(calculateMatches(board));
@@ -22,9 +21,9 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     if (attempts === 0) return;
 
     //early return if the matches state is full
-    if (matches.length === 2) return;
+    if (cardsToCompare.length === 2) return;
 
-    const updatedBoard = boardItems.map((row) =>
+    const updatedBoard = boardCards.map((row) =>
       row.map((card) => {
         if (card.id === id) {
           return {...card, flipped: true};
@@ -35,22 +34,21 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     );
 
     // Update the item in boardItems when its flipped property set to true
-    setBoardItems(updatedBoard);
+    setBoardCards(updatedBoard);
 
     // Find the selectedItem
-    const selectedItem = boardItems.flat().find((card) => card.id === id);
+    const selectedCard = boardCards.flat().find((card) => card.id === id);
 
     // Early return if the selectedItem is undefined or if it's already flipped
-    if (!selectedItem || selectedItem.flipped) return;
+    if (!selectedCard || selectedCard.flipped) return;
 
     // Unify both items to be set
-    const newMatches = [...matches, selectedItem];
+    const selectedCards = [...cardsToCompare, selectedCard];
 
-    setMatches(newMatches);
+    setCardsToCompare(selectedCards);
 
-    // All this could have been a single large function
-    // but I decided to divide it into two for readability
-    handleIsAMatch(newMatches);
+    //pass the items selected to be compared && the updated board
+    handleIsAMatch(selectedCards, updatedBoard);
 
     const completed = updatedBoard.flat().every((card) => card.flipped);
 
@@ -60,7 +58,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     }
   }
 
-  function handleIsAMatch(newMatches: BoardProps[]) {
+  function handleIsAMatch(newMatches: BoardProps[], updatedBoard: BoardProps[][]) {
     // If there are not two items in the matches state, check for a match
     if (newMatches.length !== 2) return;
 
@@ -68,19 +66,19 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
 
     // If it's a match, update the board and matches state accordingly
     if (cardOne.value === cardTwo.value) {
-      setMatches([]);
-      setMatchesLeft(calculateMatches(boardItems));
-      const updatedBoard = boardItems.map((row) => {
+      setCardsToCompare([]);
+      setMatchesLeft(calculateMatches(boardCards));
+      const boardWithMatchedCards = updatedBoard.map((row) => {
         return row.map((card) => {
           if (card.id === cardOne.id || card.id === cardTwo.id) {
-            return {...card, matched: true, flipped: true};
+            return {...card, matched: true};
           }
 
           return card;
         });
       });
 
-      setBoardItems(updatedBoard);
+      setBoardCards(boardWithMatchedCards);
     } else {
       // If it's not a match, decrement attempts,
       // show life lost animation,
@@ -88,7 +86,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
       setAttempts((prev) => prev - 1);
       setIsLifeLost(true);
       setTimeout(() => {
-        const updatedBoard = boardItems.map((row) => {
+        const boardWithRevertedFlips = updatedBoard.map((row) => {
           return row.map((card) => {
             if (card.id === cardOne.id || card.id === cardTwo.id) {
               return {...card, flipped: false};
@@ -99,8 +97,8 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
         });
 
         setIsLifeLost(false);
-        setBoardItems(updatedBoard);
-        setMatches([]);
+        setBoardCards(boardWithRevertedFlips);
+        setCardsToCompare([]);
       }, 1000);
     }
   }
@@ -110,9 +108,9 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
       confirm("The board will be re-sorted, are you sure?");
     }
     setGameCompleted(false);
-    setBoardItems(randomlySortBoard(board));
+    setBoardCards(randomlySortBoard(board));
     setMatchesLeft(calculateMatches(board));
-    setMatches([]);
+    setCardsToCompare([]);
     setAttempts(15);
   }
 
@@ -134,7 +132,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
       </div>
 
       <div className="grid grid-cols-5 gap-1">
-        {boardItems.map((items) => {
+        {boardCards.map((items) => {
           return items.map((item) => {
             return (
               <button
@@ -174,10 +172,15 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
           </div>
         </div>
         {/**TODO: Disable button when attempts are untouched? */}
-        <button className="items-center rounded-md bg-stone-700 p-2" onClick={resetGame}>
+        <button
+          className="group items-center rounded-md bg-stone-700 p-2 disabled:pointer-events-none"
+          disabled={attempts === 15}
+          onClick={resetGame}
+        >
           <RestartIcon
-            className={cn("h-6 w-6 text-stone-300 duration-200 hover:text-stone-400", {
-              "text-green-300 hover:text-green-400": attempts === 0,
+            className={cn("h-6 w-6 text-stone-300 duration-200 group-hover:text-stone-400", {
+              "text-green-300 group-hover:text-green-400": attempts === 0,
+              "text-stone-500": attempts === 15,
             })}
           />
         </button>
