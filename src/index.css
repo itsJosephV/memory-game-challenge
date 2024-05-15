@@ -11,12 +11,12 @@
   background-color: #1c1917;
 }
 
-.shake {
-  animation: shake-animation 4.72s ease;
+.shake-box {
+  animation: shake-box-animation 4.72s ease;
   transform-origin: 50% 50%
 }
 
-@keyframes shake-animation {
+@keyframes shake-box-animation {
   0% { transform:translate(0,0) }
  1.78571% { transform:translate(5px,0) }
  3.57143% { transform:translate(0,0) }

@@ -10,14 +10,18 @@ import {calculateMatches} from "../utils/calculateMatches";
 
 export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   const [boardItems, setBoardItems] = useState<BoardProps[][]>(randomlySortBoard(board));
+  //matches state logic to compare the two items selected
   const [matches, setMatches] = useState<BoardProps[]>([]);
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
-  const [attemps, setAttemps] = useState<number>(15);
+  const [attempts, setAttempts] = useState<number>(15);
   const [matchesLeft, setMatchesLeft] = useState<number>(calculateMatches(board));
   const [isLifeLost, setIsLifeLost] = useState<boolean>(false);
 
-  const flipCard = (id: number) => {
-    if (attemps === 0) return;
+  const handleCardFlip = (id: number) => {
+    //early return when player ran out of attemps
+    if (attempts === 0) return;
+
+    //early return if the matches state is full
     if (matches.length === 2) return;
 
     const updatedBoard = boardItems.map((row) =>
@@ -30,75 +34,86 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
       }),
     );
 
+    // Update the item in boardItems with its flipped property set to true
     setBoardItems(updatedBoard);
-    isMatch(id);
+
+    // we check if the two items inside "matches" is a match or not
+    // all this could have been a single large function but I decided to part it into two
+    // for readability
+    handleIsAMatch(id);
+
     const completed = updatedBoard.flat().every((card) => card.flipped);
 
+    //Check if all the items "flipped" property are true, if so, the game is completed
     if (completed) {
       setGameCompleted(true);
     }
   };
 
-  const isMatch = (id: number) => {
+  const handleIsAMatch = (id: number) => {
+    // Find the selectedItem
     const selectedItem = boardItems.flat().find((card) => card.id === id);
 
-    if (!selectedItem || selectedItem.flipped || matches.includes(selectedItem)) return;
+    // Early return if the selectedItem is undefined or if it's already flipped
+    if (!selectedItem || selectedItem.flipped) return;
 
+    // Unify both items to be set
     const newMatches = [...matches, selectedItem];
 
     setMatches(newMatches);
 
-    if (newMatches.length === 2) {
-      const [item1, item2] = newMatches;
+    // If there are not two items in the matches state, check for a match
+    if (newMatches.length !== 2) return;
 
-      if (item1.value === item2.value) {
-        setMatches([]);
-        const matchesLeftUpdated = calculateMatches(boardItems);
+    const [cardOne, cardTwo] = newMatches;
 
-        setMatchesLeft(matchesLeftUpdated);
-        console.log("match found");
-        const updatedBoard = boardItems.map((row) =>
-          row.map((card) => {
-            if (card.id === item1.id || card.id === item2.id) {
-              return {...card, matched: true, flipped: true};
+    // If it's a match, update the board and matches state accordingly
+    if (cardOne.value === cardTwo.value) {
+      setMatches([]);
+      setMatchesLeft(calculateMatches(boardItems));
+      const updatedBoard = boardItems.map((row) => {
+        return row.map((card) => {
+          if (card.id === cardOne.id || card.id === cardTwo.id) {
+            return {...card, matched: true, flipped: true};
+          }
+
+          return card;
+        });
+      });
+
+      setBoardItems(updatedBoard);
+    } else {
+      // If it's not a match, decrement attempts,
+      // show life lost animation,
+      // and flip the cards back after a delay
+      setAttempts((prev) => prev - 1);
+      setIsLifeLost(true);
+      setTimeout(() => {
+        const updatedBoard = boardItems.map((row) => {
+          return row.map((card) => {
+            if (card.id === cardOne.id || card.id === cardTwo.id) {
+              return {...card, flipped: false};
             }
 
             return card;
-          }),
-        );
+          });
+        });
 
+        setIsLifeLost(false);
         setBoardItems(updatedBoard);
-      } else {
-        setAttemps((prev) => prev - 1);
-        setIsLifeLost(true);
-        setTimeout(() => {
-          const updatedBoard = boardItems.map((row) =>
-            row.map((card) => {
-              if (card.id === item1.id || card.id === item2.id) {
-                return {...card, flipped: false};
-              }
-
-              return card;
-            }),
-          );
-
-          setIsLifeLost(false);
-          setBoardItems(updatedBoard);
-          setMatches([]);
-          console.log("match not found");
-        }, 1000);
-      }
+        setMatches([]);
+      }, 1000);
     }
   };
 
   const resetGame = () => {
-    if (attemps > 0) {
+    if (attempts > 0) {
       confirm("The board will be re-sorted, are you sure?");
     }
     setBoardItems(randomlySortBoard(board));
     setMatchesLeft(calculateMatches(board));
     setMatches([]);
-    setAttemps(15);
+    setAttempts(15);
   };
 
   return (
@@ -107,14 +122,15 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
         className={cn(
           "ml-auto inline-flex w-16 items-center justify-center gap-1 rounded-md bg-stone-700 py-1 font-mono text-red-300",
           {
-            shake: isLifeLost,
+            "shake-box": isLifeLost,
           },
         )}
       >
         <span>
+          {/**TODO: Broken heart Icon at 0 attemps */}
           <LifeIcon />
         </span>
-        &times;{attemps}
+        &times;{attempts}
       </div>
 
       <div className="grid grid-cols-5 gap-1">
@@ -127,17 +143,17 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
                   "group flex h-16 w-16 items-center justify-center rounded-md border border-stone-100/10 text-2xl duration-200 hover:border-stone-100/30 md:h-20 md:w-20 md:text-3xl",
                   {
                     "bg-emerald-400": item.matched,
-                    "pointer-events-none border-red-300": attemps === 0,
+                    "pointer-events-none border-red-300": attempts === 0,
                   },
                 )}
-                onClick={() => flipCard(item.id)}
+                onClick={() => handleCardFlip(item.id)}
               >
                 {item.flipped ? (
                   item.value
                 ) : (
                   <PlaceholderIcon
                     className={cn("text-stone-100/20 duration-200 group-hover:text-stone-100/30", {
-                      "text-red-300": attemps === 0,
+                      "text-red-300": attempts === 0,
                     })}
                   />
                 )}
@@ -154,13 +170,14 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
 
           <div>
             {gameCompleted && <p className="text-sm text-green-300 md:text-base">Game Completed</p>}
-            {attemps === 0 && <p className="text-sm text-red-300 md:text-base">Game Over</p>}
+            {attempts === 0 && <p className="text-sm text-red-300 md:text-base">Game Over</p>}
           </div>
         </div>
+        {/**TODO: Disable button when attempts are untouched? */}
         <button className="items-center rounded-md bg-stone-700 p-2" onClick={resetGame}>
           <RestartIcon
             className={cn("h-6 w-6 text-stone-300 duration-200 hover:text-stone-400", {
-              "text-green-300 hover:text-green-400": attemps === 0,
+              "text-green-300 hover:text-green-400": attempts === 0,
             })}
           />
         </button>
