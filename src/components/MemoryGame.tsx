@@ -17,7 +17,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   const [matchesLeft, setMatchesLeft] = useState<number>(calculateMatches(board));
   const [isLifeLost, setIsLifeLost] = useState<boolean>(false);
 
-  const handleCardFlip = (id: number) => {
+  function handleCardFlip(id: number) {
     //early return when player ran out of attemps
     if (attempts === 0) return;
 
@@ -58,9 +58,9 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     if (completed) {
       setGameCompleted(true);
     }
-  };
+  }
 
-  const handleIsAMatch = (newMatches: BoardProps[]) => {
+  function handleIsAMatch(newMatches: BoardProps[]) {
     // If there are not two items in the matches state, check for a match
     if (newMatches.length !== 2) return;
 
@@ -103,7 +103,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
         setMatches([]);
       }, 1000);
     }
-  };
+  }
 
   const resetGame = () => {
     if (attempts > 0 && !gameCompleted) {
