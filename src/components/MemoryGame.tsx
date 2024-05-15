@@ -37,20 +37,6 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     // Update the item in boardItems when its flipped property set to true
     setBoardItems(updatedBoard);
 
-    // we check if the two items inside "matches" is a match or not
-    // all this could have been a single large function but I decided to part it into two
-    // for readability
-    handleIsAMatch(id);
-
-    const completed = updatedBoard.flat().every((card) => card.flipped);
-
-    //Check if all the items "flipped" property are true, if so, the game is completed
-    if (completed) {
-      setGameCompleted(true);
-    }
-  };
-
-  const handleIsAMatch = (id: number) => {
     // Find the selectedItem
     const selectedItem = boardItems.flat().find((card) => card.id === id);
 
@@ -62,6 +48,19 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
 
     setMatches(newMatches);
 
+    // All this could have been a single large function
+    // but I decided to divide it into two for readability
+    handleIsAMatch(newMatches);
+
+    const completed = updatedBoard.flat().every((card) => card.flipped);
+
+    // Check if all the items "flipped" property are true, if so, the game is completed
+    if (completed) {
+      setGameCompleted(true);
+    }
+  };
+
+  const handleIsAMatch = (newMatches: BoardProps[]) => {
     // If there are not two items in the matches state, check for a match
     if (newMatches.length !== 2) return;
 
@@ -107,9 +106,10 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   };
 
   const resetGame = () => {
-    if (attempts > 0) {
+    if (attempts > 0 && !gameCompleted) {
       confirm("The board will be re-sorted, are you sure?");
     }
+    setGameCompleted(false);
     setBoardItems(randomlySortBoard(board));
     setMatchesLeft(calculateMatches(board));
     setMatches([]);
