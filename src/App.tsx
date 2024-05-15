@@ -1,5 +1,5 @@
 import {MemoryGame} from "./components/MemoryGame";
-import {BoardProps} from "./types";
+import {type BoardProps} from "./types";
 
 function App() {
   const board: BoardProps[][] = [
@@ -33,14 +33,45 @@ function App() {
     ],
   ];
 
+  const linkStyles =
+    "cursor-pointer text-sm text-stone-400 duration-200 hover:text-stone-100 md:text-base";
+
   return (
     <main className="container m-auto grid min-h-screen grid-rows-[auto,1fr,auto] px-4">
-      <header className="font-mono text-xl font-bold leading-[4rem]">memory-game-challenge</header>
+      <header className="flex flex-wrap items-center justify-between gap-1.5 py-4 font-mono">
+        <h1 className="whitespace-nowrap text-lg font-bold md:text-xl">Card Match Game</h1>
+        <div className="flex gap-3">
+          <a
+            className={linkStyles}
+            href="https://github.com/itsJosephV/memory-game-challenge"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Source
+          </a>
+          <a
+            className={linkStyles}
+            href="https://www.linkedin.com/in/josephvp"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            LinkedIn
+          </a>
+        </div>
+      </header>
       <section className="flex items-center justify-center py-8">
         <MemoryGame board={board} />
       </section>
-      <footer className="text-center font-mono leading-[4rem] opacity-70">
-        © {new Date().getFullYear()} memory-game-challenge
+      <footer className="py-4 text-center font-mono text-sm opacity-70">
+        {new Date().getFullYear()} · Crafted by{" "}
+        <a
+          className="text-purple-400"
+          href="https://github.com/itsJosephV"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          @itsJosephV
+        </a>
       </footer>
     </main>
   );

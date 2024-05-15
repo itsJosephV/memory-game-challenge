@@ -7,6 +7,7 @@ import {PlaceholderIcon} from "../icons/Placeholder";
 import {cn} from "../utils/cn";
 import {randomlySortBoard} from "../utils/randomSorting";
 import {calculateMatches} from "../utils/calculateMatches";
+import {NoLifeIcon} from "../icons/NoLife";
 
 export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   const [boardCards, setBoardCards] = useState<BoardProps[][]>(randomlySortBoard(board));
@@ -47,7 +48,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
 
     setCardsToCompare(selectedCards);
 
-    //pass the items selected to be compared && the updated board
+    //pass the items selected to be compared & the updated board
     handleIsAMatch(selectedCards, updatedBoard);
 
     const completed = updatedBoard.flat().every((card) => card.flipped);
@@ -58,11 +59,11 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     }
   }
 
-  function handleIsAMatch(newMatches: BoardProps[], updatedBoard: BoardProps[][]) {
-    // If there are not two items in the matches state, check for a match
-    if (newMatches.length !== 2) return;
+  function handleIsAMatch(selectedCards: BoardProps[], updatedBoard: BoardProps[][]) {
+    // early return If there are not two cards selected
+    if (selectedCards.length !== 2) return;
 
-    const [cardOne, cardTwo] = newMatches;
+    const [cardOne, cardTwo] = selectedCards;
 
     // If it's a match, update the board and matches state accordingly
     if (cardOne.value === cardTwo.value) {
@@ -82,7 +83,7 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     } else {
       // If it's not a match, decrement attempts,
       // show life lost animation,
-      // and flip the cards back after a delay
+      // and flip the cards back after a small delay
       setAttempts((prev) => prev - 1);
       setIsLifeLost(true);
       setTimeout(() => {
@@ -104,14 +105,16 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
   }
 
   function resetGame() {
-    if (attempts > 0 && !gameCompleted) {
-      confirm("The board will be re-sorted, are you sure?");
+    const confirmReset =
+      attempts > 0 && !gameCompleted ? confirm("The board will be re-sorted, are you sure?") : true;
+
+    if (confirmReset) {
+      setGameCompleted(false);
+      setBoardCards(randomlySortBoard(board));
+      setMatchesLeft(calculateMatches(board));
+      setCardsToCompare([]);
+      setAttempts(15);
     }
-    setGameCompleted(false);
-    setBoardCards(randomlySortBoard(board));
-    setMatchesLeft(calculateMatches(board));
-    setCardsToCompare([]);
-    setAttempts(15);
   }
 
   return (
@@ -126,7 +129,8 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
       >
         <span>
           {/**TODO: Broken heart Icon at 0 attemps */}
-          <LifeIcon />
+
+          {attempts > 0 ? <LifeIcon /> : <NoLifeIcon />}
         </span>
         &times;{attempts}
       </div>
@@ -167,20 +171,15 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
           </div>
 
           <div>
-            {gameCompleted && <p className="text-sm text-green-300 md:text-base">Game Completed</p>}
+            {gameCompleted && <p className="text-sm text-green-300 md:text-base">Completed</p>}
             {attempts === 0 && <p className="text-sm text-red-300 md:text-base">Game Over</p>}
           </div>
         </div>
         {/**TODO: Disable button when attempts are untouched? */}
-        <button
-          className="group items-center rounded-md bg-stone-700 p-2 disabled:pointer-events-none"
-          disabled={attempts === 15}
-          onClick={resetGame}
-        >
+        <button className="group items-center rounded-md bg-stone-700 p-2" onClick={resetGame}>
           <RestartIcon
             className={cn("h-6 w-6 text-stone-300 duration-200 group-hover:text-stone-400", {
               "text-green-300 group-hover:text-green-400": attempts === 0,
-              "text-stone-500": attempts === 15,
             })}
           />
         </button>
@@ -188,3 +187,4 @@ export const MemoryGame = ({board}: {board: BoardProps[][]}) => {
     </div>
   );
 };
+//
